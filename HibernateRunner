@@ -1,0 +1,107 @@
+package com.jordanHibernate;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+
+public class HibernateRunner {
+
+    private List<Player> players;
+    private HibernateConfig theHibernateUtility;
+
+    public HibernateRunner(){
+        theHibernateUtility = new HibernateConfig();
+    }
+
+    public static void main(String[] args){
+
+        HibernateRunner hibRunner = new HibernateRunner();
+       // hibRunner.addNewUsers();
+       // hibRunner.showAllUsers();
+        hibRunner.modifyUser();
+        //hibRunner.addSharedPhoneNumber();
+        //hibRunner.deleteAddedUsers();
+
+    }
+
+    private void addNewUsers() {
+        Session session = theHibernateUtility.getCurrentSession();
+        /*
+         * all database interactions in Hibernate are required to be inside a transaction.
+         */
+        Transaction transaction = session.beginTransaction();
+        /*
+         * create some User instances.
+         */
+        Player aNewPlayer = new Player();
+        aNewPlayer.setFirst_name("first_name");
+        aNewPlayer.setLast_name("last_name");
+
+        Player lebronJames = new Player();
+        lebronJames.setFirst_name("Lebron");
+        lebronJames.setLast_name("James");
+
+        Player stefCurry = new Player();
+        stefCurry.setFirst_name("Steffen");
+        stefCurry.setLast_name("Curry");
+
+        /*
+         * save each instance as a record in the database
+         */
+        session.save(aNewPlayer);
+        session.save(lebronJames);
+        session.save(stefCurry);
+        transaction.commit();
+        /*
+         * prove that the User instances were added to the database and that
+         * the instances were each updated with a database generated id.
+         */
+        System.out.println("aUser generated ID is: " + aNewPlayer.getPlayer_id());
+        System.out.println("anotherUser generated ID is: " + lebronJames.getPlayer_id());
+        System.out.println("anotherUser generated ID is: " + stefCurry.getPlayer_id());
+    }
+
+    private void modifyUser() {
+
+        Session session = theHibernateUtility.getCurrentSession();
+        Transaction transaction = session.beginTransaction();
+        /*
+         * get a single User instance from the database.
+         */
+        Query singleUserQuery = session.createQuery("select p from Player as u where u.first_name='Steffen'");
+        Player steffCurry = (Player)singleUserQuery.uniqueResult();
+        /*
+         * change the user name for the Java instance
+         */
+        steffCurry.setFirst_name("Steph");
+        /*
+         * call the session merge method for the User instance in question.  This tells the database that the instance is ready to be permanently stored.
+         */
+        session.merge(steffCurry);
+
+        /*
+         * call the transaction commit method.  This tells the database that the changes are ready to be permanently stored.
+         */
+        transaction.commit();
+        /*
+         * permanently store the changes into the database tables.
+         */
+        //showAllUsers();
+    }
+}
+
+// Create another project not working
+//Hibernate utility and put in main method
+//    Username
+//    password
+//    port
+//    url
+//
+// Have an annotated class
+// Have a table in the database
+// hql query list name of class that is not real annotated class
